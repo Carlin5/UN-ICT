@@ -67,6 +67,11 @@
             padding: 20px;
             color: #666;
         }
+        
+        .refresh-btn {
+            width: auto;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
@@ -83,7 +88,8 @@
 
     <div class="messages-container" id="messagesContainer">
         <h2>Contact Form Messages</h2>
-        <button class="btn" onclick="logout()" style="width: auto; margin-bottom: 20px;">Logout</button>
+        <button class="btn refresh-btn" onclick="loadMessages()">Refresh Messages</button>
+        <button class="btn refresh-btn" onclick="logout()" style="margin-left: 10px;">Logout</button>
         <div class="message-list" id="messageList">
             <!-- Messages will be loaded here -->
         </div>
@@ -116,23 +122,31 @@
             document.getElementById('loginError').style.display = 'none';
         }
 
-        function loadMessages() {
-            const messages = JSON.parse(localStorage.getItem('contactMessages') || '[]');
-            const messageList = document.getElementById('messageList');
+        async function loadMessages() {
+            try {
+                const response = await fetch('../data/messages.json');
+                const data = await response.json();
+                const messages = data.messages || [];
+                const messageList = document.getElementById('messageList');
 
-            if (messages.length === 0) {
-                messageList.innerHTML = '<div class="no-messages">No messages yet</div>';
-                return;
+                if (messages.length === 0) {
+                    messageList.innerHTML = '<div class="no-messages">No messages yet</div>';
+                    return;
+                }
+
+                messageList.innerHTML = messages.map(msg => `
+                    <div class="message-item">
+                        <h3>${msg.name}</h3>
+                        <p><strong>Email:</strong> ${msg.email}</p>
+                        <p><strong>Date:</strong> ${new Date(msg.date).toLocaleString()}</p>
+                        <p><strong>Message:</strong> ${msg.message}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                document.getElementById('messageList').innerHTML =
+                    '<div class="error">Error loading messages. Please try again.</div>';
             }
-
-            messageList.innerHTML = messages.map(msg => `
-                <div class="message-item">
-                    <h3>${msg.name}</h3>
-                    <p><strong>Email:</strong> ${msg.email}</p>
-                    <p><strong>Date:</strong> ${new Date(msg.date).toLocaleString()}</p>
-                    <p><strong>Message:</strong> ${msg.message}</p>
-                </div>
-            `).join('');
         }
 
         // Load messages every 30 seconds to check for new ones

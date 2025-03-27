@@ -11,16 +11,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 date: new Date().toISOString()
             };
 
-            // Store message in localStorage
-            let messages = JSON.parse(localStorage.getItem('contactMessages') || '[]');
-            messages.push(formData);
-            localStorage.setItem('contactMessages', JSON.stringify(messages));
+            try {
+                const response = await fetch('save_message.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
 
-            // Clear form
-            contactForm.reset();
-
-            // Show success message
-            alert('Thank you for your message. We will get back to you soon!');
+                if (response.ok) {
+                    // Clear form
+                    contactForm.reset();
+                    alert('Thank you for your message. We will get back to you soon!');
+                } else {
+                    throw new Error('Failed to send message');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('There was an error sending your message. Please try again later.');
+            }
         });
     }
 });
