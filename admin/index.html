@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - UN-ICT</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .messages-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            display: none;
+        }
+        
+        .message-list {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .message-item:last-child {
+            border-bottom: none;
+        }
+        
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .error {
+            color: red;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .no-messages {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container" id="loginForm">
+        <h2>Admin Login</h2>
+        <p class="error" id="loginError">Invalid credentials</p>
+        <form class="login-form" onsubmit="return login(event)">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" class="btn">Login</button>
+        </form>
+    </div>
+
+    <div class="messages-container" id="messagesContainer">
+        <h2>Contact Form Messages</h2>
+        <button class="btn" onclick="logout()" style="width: auto; margin-bottom: 20px;">Logout</button>
+        <div class="message-list" id="messageList">
+            <!-- Messages will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Admin credentials
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'admin';
+
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('messagesContainer').style.display = 'block';
+                loadMessages();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('messagesContainer').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        function loadMessages() {
+            const messages = JSON.parse(localStorage.getItem('contactMessages') || '[]');
+            const messageList = document.getElementById('messageList');
+
+            if (messages.length === 0) {
+                messageList.innerHTML = '<div class="no-messages">No messages yet</div>';
+                return;
+            }
+
+            messageList.innerHTML = messages.map(msg => `
+                <div class="message-item">
+                    <h3>${msg.name}</h3>
+                    <p><strong>Email:</strong> ${msg.email}</p>
+                    <p><strong>Date:</strong> ${new Date(msg.date).toLocaleString()}</p>
+                    <p><strong>Message:</strong> ${msg.message}</p>
+                </div>
+            `).join('');
+        }
+
+        // Load messages every 30 seconds to check for new ones
+        setInterval(loadMessages, 30000);
+    </script>
+</body>
+
+</html>
