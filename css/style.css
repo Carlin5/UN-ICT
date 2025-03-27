@@ -338,15 +338,15 @@ body {
     transition: border-color 0.3s;
 }
 
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: var(--primary-color);
-}
-
-.form-group textarea {
-    min-height: 120px;
-    resize: vertical;
 }
 
 .submit-button {
@@ -368,9 +368,6 @@ body {
 .button-text {
     display: inline-block;
 }
-
-
-/* Success and error messages */
 
 .message {
     padding: 15px;
@@ -424,15 +421,6 @@ footer {
     text-decoration: none;
 }
 
-.social-links {
-    display: flex;
-    gap: 1rem;
-}
-
-.social-links a {
-    font-size: 1.5rem;
-}
-
 .footer-bottom {
     text-align: center;
     padding-top: 2rem;
@@ -459,6 +447,13 @@ footer {
     .hero p {
         font-size: 1.2rem;
     }
+    .contact-wrapper {
+        padding: 30px;
+    }
+    .contact-section h2 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
 }
 
 
@@ -479,6 +474,6 @@ footer {
 .about-content,
 .services-grid,
 .projects-grid,
-.contact-content {
+.contact-wrapper {
     animation: fadeIn 1s ease-out;
 }
