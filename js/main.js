@@ -32,6 +32,14 @@ if (contactForm) {
     contactForm.addEventListener('submit', async(e) => {
         e.preventDefault();
 
+        const submitButton = contactForm.querySelector('.submit-button');
+        const formMessage = document.getElementById('formMessage');
+
+        // Disable form and show loading state
+        submitButton.disabled = true;
+        submitButton.classList.add('loading');
+        formMessage.style.display = 'none';
+
         const formData = new FormData(contactForm);
 
         try {
@@ -43,14 +51,22 @@ if (contactForm) {
             const data = await response.json();
 
             if (data.success) {
-                alert(data.message);
+                formMessage.textContent = data.message;
+                formMessage.className = 'form-message success';
                 contactForm.reset();
             } else {
-                alert(data.message);
+                formMessage.textContent = data.message;
+                formMessage.className = 'form-message error';
             }
         } catch (error) {
-            alert('There was an error sending your message. Please try again later.');
+            formMessage.textContent = 'There was an error sending your message. Please try again later.';
+            formMessage.className = 'form-message error';
             console.error('Error:', error);
+        } finally {
+            // Re-enable form and hide loading state
+            submitButton.disabled = false;
+            submitButton.classList.remove('loading');
+            formMessage.style.display = 'block';
         }
     });
 }
