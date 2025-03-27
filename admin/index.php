@@ -2,83 +2,47 @@
 session_start();
 require_once '../config/database.php';
 
-// Basic authentication
-$admin_username = "admin";
-$admin_password = "admin"; // Updated password
-
-if (!isset($_SESSION['admin_logged_in'])) {
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        if ($_POST['username'] === $admin_username && $_POST['password'] === $admin_password) {
-            $_SESSION['admin_logged_in'] = true;
-        } else {
-            $error = "Invalid credentials";
-        }
-    }
-    
-    if (!isset($_SESSION['admin_logged_in'])) {
-        // Show login form
-        ?>
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Admin Login - UN-ICT</title>
-            <link rel="stylesheet" href="../css/style.css">
-            <style>
-                .login-container {
-                    max-width: 400px;
-                    margin: 100px auto;
-                    padding: 20px;
-                    background: white;
-                    border-radius: 10px;
-                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                }
-                .login-form input {
-                    width: 100%;
-                    padding: 10px;
-                    margin: 10px 0;
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
-                }
-                .login-form button {
-                    width: 100%;
-                    padding: 10px;
-                    background: var(--primary-color);
-                    color: white;
-                    border: none;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-                .error {
-                    color: red;
-                    margin-bottom: 10px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="login-container">
-                <h2>Admin Login</h2>
-                <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
-                <form class="login-form" method="POST">
-                    <input type="text" name="username" placeholder="Username" required>
-                    <input type="password" name="password" placeholder="Password" required>
-                    <button type="submit">Login</button>
-                </form>
-            </div>
-        </body>
-        </html>
-        <?php
-        exit;
-    }
+// Check if user is logged in
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header("Location: login.php");
+    exit;
 }
 
-// Fetch messages
+// Handle message deletion
+if (isset($_POST['delete_message'])) {
+    $message_id = filter_input(INPUT_POST, 'message_id', FILTER_SANITIZE_NUMBER_INT);
+    try {
+        $stmt = $conn->prepare("DELETE FROM messages WHERE id = :id");
+        $stmt->bindParam(':id', $message_id);
+        $stmt->execute();
+    } catch(PDOException $e) {
+        error_log("Error deleting message: " . $e->getMessage());
+    }
+    header("Location: index.php");
+    exit;
+}
+
+// Handle mark as read
+if (isset($_POST['mark_read'])) {
+    $message_id = filter_input(INPUT_POST, 'message_id', FILTER_SANITIZE_NUMBER_INT);
+    try {
+        $stmt = $conn->prepare("UPDATE messages SET is_read = TRUE WHERE id = :id");
+        $stmt->bindParam(':id', $message_id);
+        $stmt->execute();
+    } catch(PDOException $e) {
+        error_log("Error marking message as read: " . $e->getMessage());
+    }
+    header("Location: index.php");
+    exit;
+}
+
+// Get all messages
 try {
     $stmt = $conn->query("SELECT * FROM messages ORDER BY date DESC");
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch(PDOException $e) {
-    $error = "Error fetching messages: " . $e->getMessage();
+    error_log("Error fetching messages: " . $e->getMessage());
+    $messages = [];
 }
 ?>
 <!DOCTYPE html>
@@ -91,69 +55,138 @@ try {
     <style>
         .admin-container {
             max-width: 1200px;
-            margin: 20px auto;
+            margin: 80px auto 20px;
             padding: 20px;
         }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
         .message-list {
             background: white;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
+
         .message-item {
-            padding: 15px;
+            padding: 20px;
             border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
+
         .message-item:last-child {
             border-bottom: none;
         }
+
+        .message-content {
+            flex: 1;
+        }
+
         .message-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
         }
-        .message-name {
-            font-weight: bold;
-            color: var(--primary-color);
-        }
+
         .message-date {
             color: #666;
             font-size: 0.9em;
         }
-        .message-email {
-            color: #666;
-            margin-bottom: 10px;
+
+        .message-actions {
+            display: flex;
+            gap: 10px;
         }
-        .message-content {
-            white-space: pre-wrap;
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
         }
-        .logout-btn {
-            float: right;
-            padding: 10px 20px;
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-danger {
             background: #dc3545;
             color: white;
-            text-decoration: none;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .unread {
+            background-color: #f8f9fa;
+        }
+
+        .no-messages {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
             border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
     <div class="admin-container">
-        <h2>Contact Form Messages</h2>
-        <a href="logout.php" class="logout-btn">Logout</a>
-        
-        <?php if (isset($error)): ?>
-            <p class="error"><?php echo $error; ?></p>
+        <div class="admin-header">
+            <h1>Contact Form Messages</h1>
+            <a href="logout.php" class="logout-btn">Logout</a>
+        </div>
+
+        <?php if (empty($messages)): ?>
+            <div class="no-messages">No messages yet</div>
         <?php else: ?>
             <div class="message-list">
                 <?php foreach ($messages as $message): ?>
-                    <div class="message-item">
-                        <div class="message-header">
-                            <span class="message-name"><?php echo htmlspecialchars($message['name']); ?></span>
-                            <span class="message-date"><?php echo date('F j, Y, g:i a', strtotime($message['date'])); ?></span>
+                    <div class="message-item <?php echo $message['is_read'] ? '' : 'unread'; ?>">
+                        <div class="message-content">
+                            <div class="message-header">
+                                <h3><?php echo htmlspecialchars($message['name']); ?></h3>
+                                <span class="message-date"><?php echo date('Y-m-d H:i:s', strtotime($message['date'])); ?></span>
+                            </div>
+                            <p><strong>Email:</strong> <?php echo htmlspecialchars($message['email']); ?></p>
+                            <p><strong>Message:</strong> <?php echo nl2br(htmlspecialchars($message['message'])); ?></p>
                         </div>
-                        <div class="message-email"><?php echo htmlspecialchars($message['email']); ?></div>
-                        <div class="message-content"><?php echo htmlspecialchars($message['message']); ?></div>
+                        <div class="message-actions">
+                            <?php if (!$message['is_read']): ?>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="message_id" value="<?php echo $message['id']; ?>">
+                                    <button type="submit" name="mark_read" class="btn btn-primary">Mark as Read</button>
+                                </form>
+                            <?php endif; ?>
+                            <form method="POST" style="display: inline;">
+                                <input type="hidden" name="message_id" value="<?php echo $message['id']; ?>">
+                                <button type="submit" name="delete_message" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this message?')">Delete</button>
+                            </form>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>

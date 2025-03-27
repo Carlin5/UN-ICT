@@ -27,77 +27,33 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 
 // Handle form submission messages
-window.addEventListener('load', () => {
+document.addEventListener('DOMContentLoaded', function() {
+    // Get URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const status = urlParams.get('status');
     const message = urlParams.get('message');
 
     if (status && message) {
         // Create message element
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `form-message ${status}`;
-        messageDiv.textContent = message;
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${status}`;
+        messageElement.textContent = decodeURIComponent(message);
 
-        // Add message to form
-        const form = document.querySelector('.contact-form');
-        if (form) {
-            form.insertBefore(messageDiv, form.firstChild);
+        // Insert message at the top of the contact form
+        const contactForm = document.querySelector('.contact-form');
+        if (contactForm) {
+            contactForm.insertBefore(messageElement, contactForm.firstChild);
+
+            // Remove message after 5 seconds
+            setTimeout(() => {
+                messageElement.remove();
+            }, 5000);
+
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
-
-        // Remove message after 5 seconds
-        setTimeout(() => {
-            messageDiv.remove();
-        }, 5000);
-
-        // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname);
     }
 });
-
-// Form Submission
-const contactForm = document.querySelector('.contact-form');
-if (contactForm) {
-    contactForm.addEventListener('submit', async(e) => {
-        e.preventDefault();
-
-        const submitButton = contactForm.querySelector('.submit-button');
-        const formMessage = document.getElementById('formMessage');
-
-        // Disable form and show loading state
-        submitButton.disabled = true;
-        submitButton.classList.add('loading');
-        formMessage.style.display = 'none';
-
-        const formData = new FormData(contactForm);
-
-        try {
-            const response = await fetch('process_contact.php', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                formMessage.textContent = data.message;
-                formMessage.className = 'form-message success';
-                contactForm.reset();
-            } else {
-                formMessage.textContent = data.message;
-                formMessage.className = 'form-message error';
-            }
-        } catch (error) {
-            formMessage.textContent = 'There was an error sending your message. Please try again later.';
-            formMessage.className = 'form-message error';
-            console.error('Error:', error);
-        } finally {
-            // Re-enable form and hide loading state
-            submitButton.disabled = false;
-            submitButton.classList.remove('loading');
-            formMessage.style.display = 'block';
-        }
-    });
-}
 
 // Scroll Animation
 const observerOptions = {
