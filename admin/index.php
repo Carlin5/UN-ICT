@@ -4,7 +4,7 @@ require_once '../config/database.php';
 
 // Basic authentication
 $admin_username = "admin";
-$admin_password = "your_secure_password"; // Change this to a secure password
+$admin_password = "admin"; // Updated password
 
 if (!isset($_SESSION['admin_logged_in'])) {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
