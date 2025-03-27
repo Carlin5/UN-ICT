@@ -156,7 +156,7 @@
                             <p>UN Headquarters, New York</p>
                         </div>
                     </div>
-                    <form class="contact-form" id="contactForm">
+                    <form class="contact-form" action="process_contact.php" method="POST">
                         <div class="form-group">
                             <input type="text" name="name" placeholder="Name" required>
                         </div>
@@ -169,10 +169,8 @@
                         <div class="form-group">
                             <button type="submit" class="submit-button">
                                 <span class="button-text">Send Message</span>
-                                <span class="button-loader"></span>
                             </button>
                         </div>
-                        <div class="form-message" id="formMessage"></div>
                     </form>
                 </div>
             </div>

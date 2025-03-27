@@ -26,6 +26,34 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Handle form submission messages
+window.addEventListener('load', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    const message = urlParams.get('message');
+
+    if (status && message) {
+        // Create message element
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `form-message ${status}`;
+        messageDiv.textContent = message;
+
+        // Add message to form
+        const form = document.querySelector('.contact-form');
+        if (form) {
+            form.insertBefore(messageDiv, form.firstChild);
+        }
+
+        // Remove message after 5 seconds
+        setTimeout(() => {
+            messageDiv.remove();
+        }, 5000);
+
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+});
+
 // Form Submission
 const contactForm = document.querySelector('.contact-form');
 if (contactForm) {
