@@ -84,3 +84,36 @@ window.addEventListener('scroll', () => {
         navbar.style.boxShadow = 'none';
     }
 });
+
+// Live Preview for Contact Form
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.contact-form');
+    if (form) {
+        const inputs = form.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            const preview = document.getElementById(`${input.id}-preview`);
+
+            input.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    preview.textContent = this.value;
+                    preview.classList.add('active');
+                } else {
+                    preview.textContent = '';
+                    preview.classList.remove('active');
+                }
+            });
+
+            input.addEventListener('focus', function() {
+                if (this.value.trim()) {
+                    preview.classList.add('active');
+                }
+            });
+
+            input.addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    preview.classList.remove('active');
+                }
+            });
+        });
+    }
+});

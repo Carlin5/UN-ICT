@@ -477,3 +477,26 @@ footer {
 .contact-wrapper {
     animation: fadeIn 1s ease-out;
 }
+
+
+/* Live Preview Styles */
+
+.live-preview {
+    margin-top: 5px;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    font-size: 14px;
+    color: #666;
+    min-height: 20px;
+    display: none;
+}
+
+.live-preview.active {
+    display: block;
+}
+
+.form-group input:focus+.live-preview,
+.form-group textarea:focus+.live-preview {
+    display: block;
+}

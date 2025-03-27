@@ -173,20 +173,27 @@
                         </div>
                     </div>
                     <div class="contact-form-container">
-                        <form action="process_contact.php" method="POST" class="contact-form">
+                        <form class="contact-form" action="process_contact.php" method="POST">
                             <div class="form-group">
-                                <label for="name">Your Name</label>
-                                <input type="text" id="name" name="name" required>
+                                <label for="name">Name</label>
+                                <input type="text" id="name" name="name" placeholder="Your name" required>
+                                <div class="live-preview" id="name-preview"></div>
                             </div>
                             <div class="form-group">
-                                <label for="email">Your Email</label>
-                                <input type="email" id="email" name="email" required>
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" placeholder="Your email" required>
+                                <div class="live-preview" id="email-preview"></div>
                             </div>
                             <div class="form-group">
-                                <label for="message">Your Message</label>
-                                <textarea id="message" name="message" rows="5" required></textarea>
+                                <label for="message">Message</label>
+                                <textarea id="message" name="message" placeholder="Your message" required></textarea>
+                                <div class="live-preview" id="message-preview"></div>
                             </div>
-                            <button type="submit" class="submit-button">Send Message</button>
+                            <div class="form-group">
+                                <button type="submit" class="submit-button">
+                                    <span class="button-text">Send Message</span>
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -202,34 +209,6 @@
                     <p>Advancing Technology for Global Development</p>
                 </div>
                 <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#services">Services</a></li>
-                        <li><a href="#projects">Projects</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Connect With Us</h3>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 UN-ICT. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="js/main.js"></script>
-</body>
-
-</html>         <div class="footer-section">
                     <h3>Quick Links</h3>
                     <ul>
                         <li><a href="#home">Home</a></li>
