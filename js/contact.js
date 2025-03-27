@@ -20,16 +20,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify(formData)
                 });
 
+                const result = await response.json();
+
                 if (response.ok) {
                     // Clear form
                     contactForm.reset();
                     alert('Thank you for your message. We will get back to you soon!');
                 } else {
-                    throw new Error('Failed to send message');
+                    throw new Error(result.error || 'Failed to send message');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('There was an error sending your message. Please try again later.');
+                alert('Error: ' + error.message + '\nPlease try again later or contact support if the problem persists.');
             }
         });
     }
