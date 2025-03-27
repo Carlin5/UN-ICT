@@ -33,17 +33,21 @@ if (contactForm) {
         e.preventDefault();
 
         const formData = new FormData(contactForm);
-        const data = {
-            name: formData.get('name'),
-            email: formData.get('email'),
-            message: formData.get('message')
-        };
 
         try {
-            // Here you would typically send the data to your backend
-            // For now, we'll just show a success message
-            alert('Thank you for your message. We will get back to you soon!');
-            contactForm.reset();
+            const response = await fetch('process_contact.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(data.message);
+                contactForm.reset();
+            } else {
+                alert(data.message);
+            }
         } catch (error) {
             alert('There was an error sending your message. Please try again later.');
             console.error('Error:', error);

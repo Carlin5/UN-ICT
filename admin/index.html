@@ -7,31 +7,55 @@
     <title>Admin Panel - UN-ICT</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
+         :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+        }
+        
+        body {
+            background-color: #f5f6fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
         .login-container {
             max-width: 400px;
             margin: 100px auto;
-            padding: 20px;
+            padding: 30px;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .messages-container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
             display: none;
         }
         
         .message-list {
             background: white;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
         
         .message-item {
-            padding: 15px;
+            padding: 20px;
             border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+        }
+        
+        .message-item:hover {
+            background-color: #f8f9fa;
         }
         
         .message-item:last-child {
@@ -40,36 +64,71 @@
         
         .login-form input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
             border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .login-form input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
         }
         
         .btn {
-            width: 100%;
-            padding: 10px;
+            padding: 12px 24px;
             background: var(--primary-color);
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background: var(--secondary-color);
+        }
+        
+        .btn-danger {
+            background: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
         }
         
         .error {
-            color: red;
+            color: var(--danger-color);
             margin: 10px 0;
+            padding: 10px;
+            background: #fde8e8;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .success {
+            color: var(--success-color);
+            margin: 10px 0;
+            padding: 10px;
+            background: #e8f8f0;
+            border-radius: 5px;
             display: none;
         }
         
         .no-messages {
             text-align: center;
-            padding: 20px;
+            padding: 40px;
             color: #666;
+            font-size: 18px;
         }
         
-        .refresh-btn {
-            width: auto;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
         
@@ -92,6 +151,49 @@
         .message-content p {
             margin: 5px 0;
         }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .delete-btn {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .delete-btn:hover {
+            background: #c0392b;
+        }
     </style>
 </head>
 
@@ -107,34 +209,59 @@
     </div>
 
     <div class="messages-container" id="messagesContainer">
-        <h2>Contact Form Messages</h2>
-        <button class="btn refresh-btn" onclick="loadMessages()">Refresh Messages</button>
-        <button class="btn refresh-btn" onclick="logout()" style="margin-left: 10px;">Logout</button>
+        <div class="header">
+            <h2>Contact Form Messages</h2>
+            <button class="btn" onclick="logout()">Logout</button>
+        </div>
+        <div class="action-buttons">
+            <button class="btn" onclick="loadMessages()">Refresh Messages</button>
+            <button class="btn btn-danger" onclick="clearAllMessages()">Clear All Messages</button>
+        </div>
+        <div class="loading" id="loadingIndicator">Loading messages...</div>
         <div class="message-list" id="messageList">
             <!-- Messages will be loaded here -->
         </div>
     </div>
 
     <script>
-        // Admin credentials
-        const ADMIN_USERNAME = 'admin';
-        const ADMIN_PASSWORD = 'admin';
+        let isAuthenticated = false;
 
-        function login(event) {
+        async function login(event) {
             event.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('messagesContainer').style.display = 'block';
-                loadMessages();
-            } else {
+            try {
+                const response = await fetch('auth.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    isAuthenticated = true;
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('messagesContainer').style.display = 'block';
+                    loadMessages();
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('loginError').textContent = 'An error occurred during login';
                 document.getElementById('loginError').style.display = 'block';
             }
         }
 
         function logout() {
+            isAuthenticated = false;
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('messagesContainer').style.display = 'none';
             document.getElementById('username').value = '';
@@ -143,50 +270,127 @@
         }
 
         async function loadMessages() {
+            if (!isAuthenticated) return;
+
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const messageList = document.getElementById('messageList');
+
+            loadingIndicator.style.display = 'block';
+            messageList.style.display = 'none';
+
             try {
-                const response = await fetch('../messages.txt');
-                const text = await response.text();
-                const messageList = document.getElementById('messageList');
+                const response = await fetch('get_messages.php');
+                if (!response.ok) throw new Error('Failed to fetch messages');
 
-                if (!text.trim()) {
+                const messages = await response.json();
+
+                if (!messages.length) {
                     messageList.innerHTML = '<div class="no-messages">No messages yet</div>';
-                    return;
+                } else {
+                    messageList.innerHTML = messages.map(msg => `
+                        <div class="message-item">
+                            <div class="message-header">
+                                <h3>${escapeHtml(msg.name)}</h3>
+                                <span class="message-date">${msg.date}</span>
+                            </div>
+                            <div class="message-content">
+                                <p><strong>Email:</strong> ${escapeHtml(msg.email)}</p>
+                                <p><strong>Message:</strong> ${escapeHtml(msg.message)}</p>
+                                <button class="delete-btn" onclick="deleteMessage('${msg.id}')">Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
                 }
-
-                const messages = text.split('\n')
-                    .filter(line => line.trim())
-                    .map(line => {
-                        const [date, name, email, message] = line.split('|');
-                        return {
-                            date,
-                            name,
-                            email,
-                            message
-                        };
-                    })
-                    .reverse(); // Show newest messages first
-
-                messageList.innerHTML = messages.map(msg => `
-                    <div class="message-item">
-                        <div class="message-header">
-                            <h3>${msg.name}</h3>
-                            <span class="message-date">${msg.date}</span>
-                        </div>
-                        <div class="message-content">
-                            <p><strong>Email:</strong> ${msg.email}</p>
-                            <p><strong>Message:</strong> ${msg.message}</p>
-                        </div>
-                    </div>
-                `).join('');
             } catch (error) {
                 console.error('Error loading messages:', error);
-                document.getElementById('messageList').innerHTML =
-                    '<div class="error">Error loading messages. Please try again.</div>';
+                messageList.innerHTML = '<div class="error">Error loading messages. Please try again.</div>';
+            } finally {
+                loadingIndicator.style.display = 'none';
+                messageList.style.display = 'block';
             }
         }
 
-        // Load messages every 30 seconds to check for new ones
-        setInterval(loadMessages, 30000);
+        async function deleteMessage(messageId) {
+            if (!isAuthenticated) return;
+
+            if (!confirm('Are you sure you want to delete this message?')) return;
+
+            try {
+                const response = await fetch('delete_message.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: messageId
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    loadMessages();
+                } else {
+                    alert('Failed to delete message');
+                }
+            } catch (error) {
+                console.error('Error deleting message:', error);
+                alert('An error occurred while deleting the message');
+            }
+        }
+
+        async function clearAllMessages() {
+            if (!isAuthenticated) return;
+
+            if (!confirm('Are you sure you want to delete all messages? This action cannot be undone.')) return;
+
+            try {
+                const response = await fetch('clear_messages.php', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    loadMessages();
+                } else {
+                    alert('Failed to clear messages');
+                }
+            } catch (error) {
+                console.error('Error clearing messages:', error);
+                alert('An error occurred while clearing messages');
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Check authentication status on page load
+        window.addEventListener('load', async() => {
+            try {
+                const response = await fetch('check_auth.php');
+                const data = await response.json();
+                if (data.authenticated) {
+                    isAuthenticated = true;
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('messagesContainer').style.display = 'block';
+                    loadMessages();
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        });
+
+        // Load messages every 30 seconds if authenticated
+        setInterval(() => {
+            if (isAuthenticated) {
+                loadMessages();
+            }
+        }, 30000);
     </script>
 </body>
 
