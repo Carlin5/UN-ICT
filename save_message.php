@@ -32,42 +32,23 @@ try {
         throw new Exception('Missing required fields');
     }
 
-    // Ensure the data directory exists
-    $dataDir = __DIR__ . '/data';
-    if (!file_exists($dataDir)) {
-        if (!mkdir($dataDir, 0777, true)) {
-            throw new Exception('Failed to create data directory');
-        }
-    }
+    // Format the message
+    $message = sprintf(
+        "%s|%s|%s|%s\n",
+        date('Y-m-d H:i:s'),
+        htmlspecialchars($data['name']),
+        htmlspecialchars($data['email']),
+        htmlspecialchars($data['message'])
+    );
 
-    // Read existing messages
-    $messagesFile = $dataDir . '/messages.json';
-    $messages = ['messages' => []];
-    if (file_exists($messagesFile)) {
-        $existingData = file_get_contents($messagesFile);
-        if ($existingData !== false) {
-            $decoded = json_decode($existingData, true);
-            if ($decoded !== null) {
-                $messages = $decoded;
-            }
-        }
-    }
+    // Save to messages.txt
+    $result = file_put_contents('messages.txt', $message, FILE_APPEND);
 
-    // Add new message
-    $messages['messages'][] = [
-        'name' => $data['name'],
-        'email' => $data['email'],
-        'message' => $data['message'],
-        'date' => date('Y-m-d H:i:s')
-    ];
-
-    // Save back to file
-    $result = file_put_contents($messagesFile, json_encode($messages, JSON_PRETTY_PRINT));
     if ($result === false) {
         throw new Exception('Failed to save message');
     }
 
-    echo json_encode(['success' => true, 'message' => 'Message saved successfully']);
+    echo json_encode(['success' => true]);
 
 } catch (Exception $e) {
     http_response_code(400);

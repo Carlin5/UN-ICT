@@ -144,21 +144,33 @@
 
         async function loadMessages() {
             try {
-                const response = await fetch('../data/messages.json');
-                const data = await response.json();
-                const messages = data.messages || [];
+                const response = await fetch('../messages.txt');
+                const text = await response.text();
                 const messageList = document.getElementById('messageList');
 
-                if (messages.length === 0) {
+                if (!text.trim()) {
                     messageList.innerHTML = '<div class="no-messages">No messages yet</div>';
                     return;
                 }
+
+                const messages = text.split('\n')
+                    .filter(line => line.trim())
+                    .map(line => {
+                        const [date, name, email, message] = line.split('|');
+                        return {
+                            date,
+                            name,
+                            email,
+                            message
+                        };
+                    })
+                    .reverse(); // Show newest messages first
 
                 messageList.innerHTML = messages.map(msg => `
                     <div class="message-item">
                         <div class="message-header">
                             <h3>${msg.name}</h3>
-                            <span class="message-date">${new Date(msg.date).toLocaleString()}</span>
+                            <span class="message-date">${msg.date}</span>
                         </div>
                         <div class="message-content">
                             <p><strong>Email:</strong> ${msg.email}</p>
