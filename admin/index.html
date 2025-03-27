@@ -72,6 +72,26 @@
             width: auto;
             margin-bottom: 20px;
         }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .message-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .message-content {
+            margin-top: 10px;
+        }
+        
+        .message-content p {
+            margin: 5px 0;
+        }
     </style>
 </head>
 
@@ -136,10 +156,14 @@
 
                 messageList.innerHTML = messages.map(msg => `
                     <div class="message-item">
-                        <h3>${msg.name}</h3>
-                        <p><strong>Email:</strong> ${msg.email}</p>
-                        <p><strong>Date:</strong> ${new Date(msg.date).toLocaleString()}</p>
-                        <p><strong>Message:</strong> ${msg.message}</p>
+                        <div class="message-header">
+                            <h3>${msg.name}</h3>
+                            <span class="message-date">${new Date(msg.date).toLocaleString()}</span>
+                        </div>
+                        <div class="message-content">
+                            <p><strong>Email:</strong> ${msg.email}</p>
+                            <p><strong>Message:</strong> ${msg.message}</p>
+                        </div>
                     </div>
                 `).join('');
             } catch (error) {
