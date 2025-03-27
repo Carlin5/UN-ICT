@@ -1,4 +1,4 @@
--- Create database
+-- Create database if not exists
 CREATE DATABASE IF NOT EXISTS un_ict_db;
 USE un_ict_db;
 
@@ -10,15 +10,16 @@ CREATE TABLE IF NOT EXISTS messages (
     message TEXT NOT NULL,
     date DATETIME NOT NULL,
     is_read BOOLEAN DEFAULT FALSE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Create admin users table
+-- Create admin_users table
 CREATE TABLE IF NOT EXISTS admin_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    token VARCHAR(64) DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert default admin user (password: admin123)
 INSERT INTO admin_users (username, password) VALUES 
