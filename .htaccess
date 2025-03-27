@@ -43,4 +43,16 @@ ErrorDocument 404 /404.html
     ExpiresByType image/svg+xml "access plus 1 year"
     ExpiresByType text/css "access plus 1 month"
     ExpiresByType application/javascript "access plus 1 month"
-</IfModule> 
+</IfModule>
+
+AddType application/x-httpd-php .php
+AddHandler application/x-httpd-php .php
+DirectoryIndex index.php index.html
+
+# Prevent directory listing
+Options -Indexes
+
+# Enable PHP processing
+<FilesMatch "\.php$">
+    SetHandler application/x-httpd-php
+</FilesMatch> 
