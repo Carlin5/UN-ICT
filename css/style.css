@@ -312,33 +312,70 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    width: 100%;
+    max-width: 500px;
 }
 
 .contact-form input,
 .contact-form textarea {
-    padding: 1rem;
+    width: 100%;
+    padding: 12px;
     border: 1px solid #ddd;
     border-radius: 5px;
+    font-size: 16px;
     font-family: inherit;
+    background-color: white;
+    color: var(--text-color);
+    transition: border-color 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
 }
 
 .contact-form textarea {
-    height: 150px;
+    min-height: 150px;
     resize: vertical;
 }
 
 .submit-button {
-    padding: 1rem;
+    padding: 12px 24px;
     background-color: var(--primary-color);
-    color: var(--white);
+    color: white;
     border: none;
     border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .submit-button:hover {
     background-color: var(--secondary-color);
+}
+
+
+/* Ensure form elements are interactive */
+
+.contact-form input,
+.contact-form textarea,
+.contact-form button {
+    pointer-events: auto;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+}
+
+
+/* Remove any potential overlay issues */
+
+.contact-form {
+    position: relative;
+    z-index: 1;
 }
 
 
