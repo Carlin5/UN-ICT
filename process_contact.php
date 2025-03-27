@@ -7,6 +7,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $message = filter_input(INPUT_POST, 'message', FILTER_SANITIZE_STRING);
     $date = date('Y-m-d H:i:s');
 
+    // Validate inputs
+    if (empty($name) || empty($email) || empty($message) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header("Location: index.html?status=error&message=" . urlencode("Please fill in all fields with valid information."));
+        exit;
+    }
+
     try {
         // Store message in database
         $stmt = $conn->prepare("INSERT INTO messages (name, email, message, date) VALUES (:name, :email, :message, :date)");
@@ -64,20 +70,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $headers = array(
             'MIME-Version: 1.0',
             'Content-type: text/html; charset=utf-8',
-            'From: ' . $email,
+            'From: UN-ICT Website <noreply@un-ict.africa>',
             'Reply-To: ' . $email,
             'X-Mailer: PHP/' . phpversion()
         );
 
-        mail($to, $subject, $email_content, implode("\r\n", $headers));
+        $mail_sent = mail($to, $subject, $email_content, implode("\r\n", $headers));
 
-        // Redirect back with success message
-        header("Location: index.html?status=success&message=Thank you for your message. We will get back to you soon!");
+        if ($mail_sent) {
+            header("Location: index.html?status=success&message=" . urlencode("Thank you for your message. We will get back to you soon!"));
+        } else {
+            // Log the error but don't show it to the user
+            error_log("Failed to send email notification for contact form submission from: " . $email);
+            header("Location: index.html?status=success&message=" . urlencode("Thank you for your message. We will get back to you soon!"));
+        }
     } catch(PDOException $e) {
         // Log error
         error_log("Database error: " . $e->getMessage());
         // Redirect back with error message
-        header("Location: index.html?status=error&message=There was an error sending your message. Please try again later.");
+        header("Location: index.html?status=error&message=" . urlencode("There was an error sending your message. Please try again later."));
     }
     exit;
 } else {

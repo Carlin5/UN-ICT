@@ -87,22 +87,37 @@ try {
 
         .message-content {
             flex: 1;
+            max-width: 70%;
         }
 
         .message-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
+            align-items: flex-start;
+        }
+
+        .message-header h3 {
+            margin: 0;
+            color: var(--primary-color);
         }
 
         .message-date {
             color: #666;
             font-size: 0.9em;
+            white-space: nowrap;
         }
 
         .message-actions {
             display: flex;
             gap: 10px;
+            margin-left: 20px;
+        }
+
+        .message-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 10px 0;
         }
 
         .btn {
@@ -173,7 +188,7 @@ try {
                                 <span class="message-date"><?php echo date('Y-m-d H:i:s', strtotime($message['date'])); ?></span>
                             </div>
                             <p><strong>Email:</strong> <?php echo htmlspecialchars($message['email']); ?></p>
-                            <p><strong>Message:</strong> <?php echo nl2br(htmlspecialchars($message['message'])); ?></p>
+                            <div class="message-text"><strong>Message:</strong><br><?php echo nl2br(htmlspecialchars($message['message'])); ?></div>
                         </div>
                         <div class="message-actions">
                             <?php if (!$message['is_read']): ?>
